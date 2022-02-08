@@ -1,16 +1,21 @@
 package ca.coglinc.gradle.plugins.javacc;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import org.gradle.api.Action;
+import org.gradle.api.NonNullApi;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
-
-import com.google.common.util.concurrent.Callables;
+import org.gradle.api.file.FileTree;
+import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.TaskCollection;
+import org.gradle.api.tasks.compile.JavaCompile;
 
 public class JavaccPlugin implements Plugin<Project> {
     public static final String GROUP = "JavaCC";
@@ -60,14 +65,58 @@ public class JavaccPlugin implements Plugin<Project> {
             JavaccPlugin.GROUP, configuration);
     }
 
-    private void addTaskToProject(Project project, Class<? extends AbstractJavaccTask> type, String name, String description, String group, Configuration configuration) {
-        Map<String, Object> options = new HashMap<String, Object>(2);
+    private void addTaskToProject(
+        final Project project,
+        Class<? extends AbstractJavaccTask> type,
+        String name,
+        final String description,
+        final String group,
+        final Configuration configuration) {
 
-        options.put(Task.TASK_TYPE, type);
-        options.put(Task.TASK_DESCRIPTION, description);
-        options.put(Task.TASK_GROUP, group);
 
-        AbstractJavaccTask task = (AbstractJavaccTask) project.task(options, name);
-        task.getConventionMapping().map("classpath", Callables.returning(configuration));
+        project.getTasks().register(name, type,
+            new Action<AbstractJavaccTask>() {
+                @Override public void execute(@Nonnull AbstractJavaccTask task) {
+                    task.setDescription(description);
+                    task.setGroup(group);
+                    task.getClasspath().setFrom(configuration);
+                    FileTree sourceTree = getJavaSourceTree(project, task.getOutputDirectory());
+                    task.setJavaSourceTree(sourceTree);
+                }
+            });
     }
+
+    private FileTree getJavaSourceTree(Project project, File outputDirectory) {
+        FileTree javaSourceTree = null;
+        TaskCollection<JavaCompile> javaCompileTasks = project.getTasks().withType(JavaCompile.class);
+
+        for (JavaCompile task : javaCompileTasks) {
+            if (javaSourceTree == null) {
+                javaSourceTree = task.getSource();
+            } else {
+                javaSourceTree = javaSourceTree.plus(task.getSource());
+            }
+        }
+
+        return excludeOutputDirectory(javaSourceTree, outputDirectory);
+    }
+
+    private FileTree excludeOutputDirectory(FileTree sourceTree, final File outputDirectory) {
+        if (sourceTree == null) {
+            return null;
+        }
+
+        Spec<File> outputDirectoryFilter = new Spec<File>() {
+
+            @Override
+            public boolean isSatisfiedBy(File file) {
+                return file.getAbsolutePath().contains(outputDirectory.getAbsolutePath());
+            }
+        };
+
+        sourceTree = sourceTree.minus(sourceTree.filter(outputDirectoryFilter)).getAsFileTree();
+        return sourceTree;
+    }
+
+
 }

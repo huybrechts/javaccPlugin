@@ -3,7 +3,6 @@ allprojects{
     apply plugin: 'idea'
 
     group = 'ca.coglinc'
-version = '2.4.0'
 
     repositories {
         mavenCentral()
@@ -49,6 +48,3 @@ eclipse {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '3.2'
-}

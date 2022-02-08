@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaExecSpec;
 
-public class CompileJavaccTask extends AbstractJavaccTask {
+public abstract class CompileJavaccTask extends AbstractJavaccTask {
     public static final String TASK_NAME_VALUE = "compileJavacc";
     public static final String TASK_DESCRIPTION_VALUE = "Compiles JavaCC files into Java files";
 
@@ -44,11 +44,11 @@ public class CompileJavaccTask extends AbstractJavaccTask {
 
     @Override
     protected void invokeCompiler(final ProgramArguments arguments) throws Exception {
-        ExecResult execResult = this.getProject().javaexec(new Action<JavaExecSpec>() {
+        ExecResult execResult = getExec().javaexec(new Action<JavaExecSpec>() {
             @Override
             public void execute(JavaExecSpec executor) {
                 executor.classpath(getClasspath());
-                executor.setMain("org.javacc.parser.Main");
+                executor.getMainClass().set("org.javacc.parser.Main");
                 executor.args((Object[]) arguments.toArray());
                 executor.setIgnoreExitValue(true);
             }

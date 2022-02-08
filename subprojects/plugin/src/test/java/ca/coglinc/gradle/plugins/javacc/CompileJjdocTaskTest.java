@@ -94,7 +94,7 @@ public class CompileJjdocTaskTest {
         final File outputDirectory = new File(getClass().getResource("/").getFile() + "output");
         task.setOutputDirectory(outputDirectory);
 
-        task.execute();
+        task.run();
 
         assertFalse(outputDirectory.isDirectory());
     }
@@ -109,7 +109,7 @@ public class CompileJjdocTaskTest {
         setTaskInputDirectory("/jjdoc/input");
         final File outputDirectory = setTaskOutputDirectory("output");
 
-        task.execute();
+        task.run();
 
         assertTrue(outputDirectory.isDirectory());
         assertEquals(CompileJjdocTaskTest.GENERATED_FILES.length, outputDirectory.list().length);
@@ -134,6 +134,6 @@ public class CompileJjdocTaskTest {
         setTaskInputDirectory("/jjdoc/inputWithErrors");
         setTaskOutputDirectory("output");
 
-        task.execute();
+        task.run();
     }
 }

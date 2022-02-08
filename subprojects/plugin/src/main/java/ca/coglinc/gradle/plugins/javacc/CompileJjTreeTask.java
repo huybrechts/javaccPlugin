@@ -10,7 +10,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaExecSpec;
 
-public class CompileJjTreeTask extends AbstractJavaccTask {
+public abstract class CompileJjTreeTask extends AbstractJavaccTask {
     public static final String TASK_NAME_VALUE = "compileJjtree";
     public static final String TASK_DESCRIPTION_VALUE = "Compiles JJTree files into JavaCC files";
 
@@ -44,11 +44,11 @@ public class CompileJjTreeTask extends AbstractJavaccTask {
 
     @Override
     protected void invokeCompiler(final ProgramArguments arguments) throws Exception {
-        ExecResult execResult = this.getProject().javaexec(new Action<JavaExecSpec>() {
+        ExecResult execResult = getExec().javaexec(new Action<JavaExecSpec>() {
             @Override
             public void execute(JavaExecSpec executor) {
                 executor.classpath(getClasspath());
-                executor.setMain("org.javacc.jjtree.Main");
+                executor.getMainClass().set("org.javacc.jjtree.Main");
                 executor.args((Object[]) arguments.toArray());
                 executor.setIgnoreExitValue(true);
             }

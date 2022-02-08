@@ -13,7 +13,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.process.ExecResult;
 import org.gradle.process.JavaExecSpec;
 
-public class CompileJjdocTask extends AbstractJavaccTask {
+public abstract class CompileJjdocTask extends AbstractJavaccTask {
     public static final String TASK_NAME_VALUE = "jjdoc";
     public static final String TASK_DESCRIPTION_VALUE = "Takes a JavaCC parser specification and produces documentation for the BNF grammar";
 
@@ -36,11 +36,11 @@ public class CompileJjdocTask extends AbstractJavaccTask {
 
     @Override
     protected void invokeCompiler(final ProgramArguments arguments) throws Exception {
-        ExecResult execResult = this.getProject().javaexec(new Action<JavaExecSpec>() {
+        ExecResult execResult = getExec().javaexec(new Action<JavaExecSpec>() {
             @Override
             public void execute(JavaExecSpec executor) {
                 executor.classpath(getClasspath());
-                executor.setMain("org.javacc.jjdoc.JJDocMain");
+                executor.getMainClass().set("org.javacc.jjdoc.JJDocMain");
                 executor.args((Object[]) arguments.toArray());
                 executor.setIgnoreExitValue(true);
             }

@@ -1,5 +1,7 @@
-include 'subprojects/plugin', 'subprojects/acceptance-tests', 'subprojects/release'
+include ':subprojects:acceptance-tests' //, ':subprojects:release'
 
 rootProject.name = 'javacc-gradle-plugin-root'
-project(':subprojects/plugin').name = 'javacc-gradle-plugin'
-project(':subprojects/release').name = 'release'
+//project(':subprojects:release').name = 'release'
+
+include ':javacc-gradle-plugin'
+project(':javacc-gradle-plugin').projectDir = "$rootDir/subprojects/plugin" as File

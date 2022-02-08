@@ -3,7 +3,10 @@ package ca.coglinc.gradle.plugins.javacc;
 import java.io.File;
 import java.util.Map;
 
-import org.gradle.api.artifacts.Configuration;
+import javax.inject.Inject;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.ConfigurableFileTree;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.RelativePath;
@@ -22,14 +25,18 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import ca.coglinc.gradle.plugins.javacc.compilationresults.CompiledJavaccFile;
 import ca.coglinc.gradle.plugins.javacc.compilationresults.CompiledJavaccFilesDirectory;
 import ca.coglinc.gradle.plugins.javacc.compilationresults.CompiledJavaccFilesDirectoryFactory;
+import org.gradle.process.ExecOperations;
 
 public abstract class AbstractJavaccTask extends SourceTask {
     protected Map<String, String> programArguments;
 
     private File inputDirectory;
     private File outputDirectory;
-    private Configuration classpath;
+    private ConfigurableFileCollection classpath = getProject().getObjects().fileCollection();
     private CompiledJavaccFilesDirectoryFactory compiledJavaccFilesDirectoryFactory = new CompiledJavaccFilesDirectoryFactory();
+
+    @Inject
+    protected abstract ExecOperations getExec();
 
     protected AbstractJavaccTask(String inputDirectory, String outputDirectory, String filter) {
         setInputDirectory(inputDirectory);
@@ -115,20 +122,15 @@ public abstract class AbstractJavaccTask extends SourceTask {
         return sourceTree;
     }
 
+    private FileTree javaSourceTree;
+
     @Internal
-    private FileTree getJavaSourceTree() {
-        FileTree javaSourceTree = null;
-        TaskCollection<JavaCompile> javaCompileTasks = this.getProject().getTasks().withType(JavaCompile.class);
+    public FileTree getJavaSourceTree() {
+        return javaSourceTree;
+    }
 
-        for (JavaCompile task : javaCompileTasks) {
-            if (javaSourceTree == null) {
-                javaSourceTree = task.getSource();
-            } else {
-                javaSourceTree = javaSourceTree.plus(task.getSource());
-            }
-        }
-
-        return excludeOutputDirectory(javaSourceTree);
+    public void setJavaSourceTree(FileTree javaSourceTree) {
+        this.javaSourceTree = javaSourceTree;
     }
 
     @Internal
@@ -224,7 +226,7 @@ public abstract class AbstractJavaccTask extends SourceTask {
     protected abstract String supportedSuffix();
 
     @Internal
-    protected Configuration getClasspath() {
+    protected ConfigurableFileCollection getClasspath() {
         return classpath;
     }
 }
