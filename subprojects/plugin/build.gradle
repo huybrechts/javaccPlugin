@@ -151,19 +151,3 @@ gradlePlugin {
 //        }
 //    }
 //}
-
-publishing {
-
-    repositories {
-        maven {
-            name = 'maven'
-            url 'http://ei-nexus.agfahealthcare.com/repository/ei-releases/'
-            allowInsecureProtocol = true
-            credentials {
-                username = System.getenv("EI_NEXUS_USER")
-                password = System.getenv("EI_NEXUS_PASSWORD")
-            }
-        }
-    }
-
-}
