@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        maven {
+            url 'http://ei-nexus.agfahealthcare.com/repository/maven-public/'
+        }
+    }
+}
 include ':subprojects:acceptance-tests' //, ':subprojects:release'
 
 rootProject.name = 'javacc-gradle-plugin-root'

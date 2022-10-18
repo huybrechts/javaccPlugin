@@ -11,7 +11,9 @@ import org.gradle.api.file.FileTree;
 import org.gradle.api.file.FileVisitor;
 import org.gradle.api.file.RelativePath;
 import org.gradle.api.specs.Spec;
+import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory;
@@ -43,6 +45,14 @@ public abstract class AbstractJavaccTask extends SourceTask {
         setOutputDirectory(outputDirectory);
 
         include(filter);
+    }
+
+    @InputFiles
+    @SkipWhenEmpty
+    @IgnoreEmptyDirectories
+    @PathSensitive(PathSensitivity.RELATIVE)
+    @Override public FileTree getSource() {
+        return super.getSource();
     }
 
     protected void compile(File inputDirectory, RelativePath inputRelativePath) {

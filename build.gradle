@@ -1,3 +1,7 @@
+plugins {
+    id 'com.agfa.gradle.plugins.release' version '0.1-20220829_1254'
+}
+
 allprojects{
     apply plugin: 'eclipse'
     apply plugin: 'idea'
